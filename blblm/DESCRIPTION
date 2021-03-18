@@ -1,0 +1,29 @@
+Package: blblm
+Type: Package
+Title: Computes a Linear Regression Using the Bag of Little Bootstraps Algorithm
+Version: 0.1.0
+Author: Austin Way
+Authors@R:
+    person("Austin", "Way", email = "arway@ucdavis.edu", role = c("aut", "cre"))
+Maintainer: Austin Way <arway@ucdavis.edu>
+Description: This package uses the Bag of Little Bootstraps Algorithm to return a list of m lists, 
+    each with B different parameter estimates (sigma and coef). Calling the methods sigma(), coef(), confint(), etc. will combine the
+    results into a single value or term.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Suggests: 
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
+Imports: 
+    purrr,
+    magrittr,
+    furrr,
+    future, 
+    foreach,
+    doParallel
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Config/testthat/edition: 3
+VignetteBuilder: knitr

@@ -1,0 +1,126 @@
+---
+title: "BLBLM"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{blblm}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, include = FALSE}
+library(blblm)
+```
+
+## BLB (Bag of Little Bootstraps)
+
+The Bag of Little Bootstraps algorithm was created as a method of estimating underlying sampling parameters, without the time loss provided by the classical Bootstrap method. In this method, we utilize a computer's ability to multitask by running a classical Bootstrap on multiple sub-samples of our original dataset, oftentimes in parallel. 
+
+This method returns very similar results to the classical method - but with a significant time save. This makes it an ultimately better option for large, computationally-heavy estimations.
+
+-----------
+
+## Linear Modeling
+
+Linear Regression is the method of attemping to find a meaningful linear relationship between different variables of data. 
+
+The method of linear modeling used in this package is via the "stats" package. We first reshape the data to our formula, using the method "model.frame"
+
+```{r, include = FALSE}
+x = rnorm(5)
+y = rnorm(5)
+
+data = data.frame(x = x, y = y)
+formula = y ~ x
+environment(formula) <- environment()
+```
+
+
+
+
+```{r}
+data
+m <- model.frame(formula, data)
+m
+```
+
+The model.frame function reorders the data to prepare it for regression.
+
+Next, we create a matrix X to solve y = mX + b using linear algebra. 
+```{r}
+X <- model.matrix(formula, m)
+X
+```
+
+Lastly, we create a variable y to solve for (our response variable). This becomes a horizontal vector, so that we can solve using using matrix multiplication.
+```{r}
+y <- model.response(m)
+y
+```
+Lastly, we use a multinomial distribution to compute the regression using *lm_wfit* from the *stats* package.
+
+_______________
+
+## Bag of Little Bootstraps Linear Modeling (BLBLM)
+
+Our function blblm() applies the Bag of Little Bootstraps algorithm to compute multiple linear regression estimates, then the various package methods allow us to combine results and create confidence intervals. 
+
+We take five parameters in our function:
+
+* *Formula*
+    + The desired formula for the regression estimate\
+    
+* *Data*
+    + The dataset to be regressed\  
+    
+* *m*
+    + The desired number of subsamples to be created
+    + (Default - 10)\  
+    
+* *B*
+    + The desired number of samples to be taken for each of the Bootstraps
+    + (Default - 5000)\  
+    
+* *Parallel*
+    + Enter TRUE if utilizing all available cores is desired, or FALSE for using a single core
+    + (Default - FALSE)\  
+    
+    
+The function then splits the data into *m* subsections, and performs a bootstrapped linear regression on each of the samples. 
+
+______________-
+
+## Return Value
+
+The function returns a blblm object with two parts: the formula and the estimates. These can be accessed by R's $ notation.
+
+The *estimates* returns a list of lists - the outer list is of length *m* and each inner list is of length *B* with both the estimated coefficients of regression and the sigma value.
+
+## Methods
+
+The package contains five methods:
+
+* *Print*
+    + Calling print() on a blblm object will print the formula given in the function call.\  
+    
+* *Sigma*
+    + Returns the mean of all the estimated sigma values.
+    + Has an optional parameter *confidence* that will also return a confidence interval for the value. \  
+    
+* *Coef*
+    + Returns the mean of all the estimated coefficient values.
+    + Has an optional parameter *confidence* that will also return a confidence interval for the value. \  
+    
+* *Confint* 
+    + Returns a confidence interval for the given parameter estimation. \  
+    
+* *Predict*
+    + Returns a predicted value for the given parameter, given a parameter value.
+    + Has an optional parameter *confidence* that will also return a confidence interval for the value. \  
+    
